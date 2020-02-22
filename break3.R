@@ -1,9 +1,9 @@
 
 #set the working directory from which the files will be read from
-setwd("/Users/apple/Downloads/training_setB")
+setwd("Downloads/training_setB")
 
 #create a list of the files from your target directory
-file_list <- list.files(path="/Users/apple/Downloads/training")
+file_list <- list.files(path="Downloads/training")
 
 #col.name = c("SaO2","AST","BUN","Alkalinephos","Calcium","Chloride","Creatinine","Bilirubin_direct", "Glucose", "Lactate", "Magnesium", "Phosphate", "Potassium", "Bilirubin_total", "TroponinI", "Hct", "Hgb", "PTT", "WBC", "Fibrinogen", "Platelets", "Age", "Gender", "Unit1", "Unit2", "HospAdmTime", "ICULOS")
 # for (j in 1:length(col.name))
