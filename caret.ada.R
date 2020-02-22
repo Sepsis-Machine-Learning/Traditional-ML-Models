@@ -1,5 +1,5 @@
 
-setwd("/Users/apple/Downloads/data_science")
+setwd("Downloads/data_science")
 library(caret)
 library(doMC)
 
