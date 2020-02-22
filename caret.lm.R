@@ -1,4 +1,4 @@
-setwd("/Users/apple/Downloads/Data_science")
+setwd("Downloads/Data_science")
 library(caret)
 library(doMC)
 library(zoo)
