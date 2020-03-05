@@ -1,0 +1,1 @@
+,Model.Name,ROC.AUC1,glm,0.912,lda,0.863,pls,0.864,Sparse lda,0.865,glmnet,0.96,nsc,0.847,mda,0.868,fda,0.949,nb,0.8710,knn,0.9111,svm,0.9312,gbm,0.9813,rf,0.9914,rpart,0.9515,bagged tree,0.9816,c5.0,0.9917,ada boost,0.989969518,ada bM1,0.9619,xgb tree,0.9620,xgb dart,0.96
