@@ -1,7 +1,6 @@
 col.name = c("Glucose", "Lactate", "Magnesium", "Phosphate", "Potassium", "Bilirubin_total", "TroponinI", "Hct", "Hgb", "PTT", "WBC", "Fibrinogen", "Platelets", "Age", "Gender", "Unit1", "Unit2", "HospAdmTime", "ICULOS")
 for (j in 1:length(col.name))
 {
-  
   dataset <- data.frame(read.csv(file_list[1], header = TRUE, sep = "|")[, c(col.name[j], "SepsisLabel")])
   dataset$Patient <- file_list[1]
   n = nrow(dataset)
@@ -20,17 +19,11 @@ for (j in 1:length(col.name))
   names(dataset) <- c(col.name[j], "SepsisLabel", "Patient", "Time")
 
   write.csv(dataset, paste(col.name[j], "csv", sep = "."))
-
-#  Bilirubin_direct <- ggplot(dataset, aes(Time, Bilirubin_direct, group = Patient)) + geom_point() + geom_line(aes(color = SepsisLabel)) + labs(x = NULL, y = NULL) + scale_x_continuous(breaks = c(-300:0), labels = c(-300:0)) + coord_cartesian(xlim = c(-9, 0))
-
-#  saveRDS(Bilirubin_direct, file = "Bilirubin_direct.rds")
-
-#  print(Bilirubin_direct)
-
+  
+  #alert user when the above methods are finished
   alarm()
 }
 
 rm("Alkalinephos", "AST", "Bilirubin_direct", "BUN", "Calcium", "Chloride", "Creatinine")
 
 View(aa)
-     
