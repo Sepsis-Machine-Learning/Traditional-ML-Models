@@ -1,4 +1,3 @@
-
 Alkalinephos.sepsis <- read.csv("Alkalinephos.csv.sepsis.csv", header = TRUE)
 Alkalinephos.no <- read.csv("Alkalinephos.csv.no.csv", header = TRUE)
 ggplot(Alkalinephos.sepsis, aes(Time, Alkalinephos, color = SepsisLabel)) + geom_point() + geom_line(aes(group = Patient)) + labs(x = NULL, y = NULL) + scale_x_continuous(breaks = c(-350:0), labels = c(-350:0)) + 
@@ -16,5 +15,4 @@ dataset$sign = factor(dataset$sign)
 ggplot(dataset, aes(sign, Alkalinephos)) +geom_boxplot() + labs(title = "Alkalinephos no vs sepsis"
 ) + coord_cartesian(ylim = c(50, 130))
 
-
-ggplot(Alkalinephos.no, aes(Alkalinephos)) +geom_bar() 
+ggplot(Alkalinephos.no, aes(Alkalinephos)) +geom_bar()
