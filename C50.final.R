@@ -1,36 +1,42 @@
 setwd("Downloads/Data_science")
 library(caret)
 library(doMC)
-library(zoo)
 
 numCores <- detectCores()
 registerDoMC(cores = numCores-2)
 
-setB_last11 = read.csv("setB_last11.csv", header = TRUE)
+#last10 = Clinical Confirmation Group
+#last11 = Early Prediction Group
+#last17 = Extraneous Group
 setB_last10 = read.csv("setB_last10.csv", header = TRUE)
+setB_last11 = read.csv("setB_last11.csv", header = TRUE)
 setB_last17 = read.csv("setB_last17.csv", header = TRUE)
-# 
-setA_last11 = read.csv("last11.csv", header = TRUE)
+
 setA_last10 = read.csv("last10.csv", header = TRUE)
+setA_last11 = read.csv("last11.csv", header = TRUE)
 setA_last17 = read.csv("last17.csv", header = TRUE)
-# 
+
+#setA for testing, setB for training/cross-validation
 setA = rbind(setA_last11, setA_last10, setA_last17)
 setB = rbind(setB_last11, setB_last10, setB_last17)
 
-# train vs validation
+# training vs validation
 validation <- createDataPartition(setB$SepsisLabel, p = 0.2, list = FALSE)
 train <- setB[-validation,]
 valid <- setB[validation,]
 
-#down sampling to balance training set claaaes
+#downsampling to balance training set classes, 42 is patient ID, 44 is sepsis label
 train = downSample(x = train[, -42], y = as.factor(train$SepsisLabel))
 names(train)[44]<-"SepsisLabel"
 train <- rbind(train, valid)
 table(train$SepsisLabel)
 
-#testset
+#testing
 test = setA
 
+#group1 = Clinical Confirmation Group
+#group2 = Early Prediction Group
+#group3 = Extraneous Group
 group1 = test[test$time > -10, ]
 group2 = test[test$time < -9 & test$time > -16, ]
 group3 = test[test$time < -15, ]
@@ -40,9 +46,11 @@ group2.time = group2$time
 
 train_patient = train$Patient
 train_Y = ifelse(train$SepsisLabel==1, "Y", "N")
+#remove extraneous variables: X is the row number of orignal data, EtCO2 is missing from testing data (Set A)
+#also remove Sepsis Label because it is our result, Patient ID is not useful, 99.9% of TroponinI is None
 train = subset(train, select=-c(X, EtCO2, SepsisLabel, Patient, TroponinI))
 
-#replacing NaN with mean value
+#replacing NaN with mean value - we found this was best compared to replacing with 0 or using Amelia package
 train = na.aggregate(train) 
 train = data.frame(train, train_Y)
 
