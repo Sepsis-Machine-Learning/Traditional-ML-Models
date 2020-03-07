@@ -17,18 +17,18 @@ setA_last17 = read.csv("last17.csv", header = TRUE)
 setA = rbind(setA_last11, setA_last10, setA_last17)
 setB = rbind(setB_last11, setB_last10, setB_last17)
 
-# train vs test
+# train vs validation
 validation <- createDataPartition(setB$SepsisLabel, p = 0.2, list = FALSE)
 train <- setB[-validation,]
 valid <- setB[validation,]
 
+#down sampling to balance training set claaaes
 train = downSample(x = train[, -42], y = as.factor(train$SepsisLabel))
 names(train)[44]<-"SepsisLabel"
-table(train$SepsisLabel)
-
 train <- rbind(train, valid)
 table(train$SepsisLabel)
 
+#testset
 test = setA
 
 group1 = test[test$time > -10, ]
@@ -40,51 +40,52 @@ group2.time = group2$time
 
 train_patient = train$Patient
 train_Y = ifelse(train$SepsisLabel==1, "Y", "N")
-# train = subset(train, select=-c(X, EtCO2, SepsisLabel, Patient, Bilirubin_direct, TroponinI, Fibrinogen))
 train = subset(train, select=-c(X, EtCO2, SepsisLabel, Patient, TroponinI))
+
+#replacing NaN with mean value
 train = na.aggregate(train) 
 train = data.frame(train, train_Y)
-# keep <- Reduce('&', lapply(train, function(x) x >= quantile(x, .01) 
-#                            & x <= quantile(x, .99)))
-# train = train[keep,]
 
 test_patient = test$Patient
 test_Y = ifelse(test$SepsisLabel==1, "Y", "N")
 test = subset(test, select=-c(X, EtCO2, SepsisLabel, Patient, TroponinI))
+#replacing NaN with mean value
 test = na.aggregate(test) 
 test =data.frame(test, test_Y)
 
 group1_patient = group1$Patient
 group1_Y = ifelse(group1$SepsisLabel==1, "Y", "N")
 group1 = subset(group1, select=-c(X, EtCO2, SepsisLabel, Patient, TroponinI))
+#replacing NaN with mean value
 group1 = na.aggregate(group1) 
 group1 = data.frame(group1, group1_Y)
 
 group2_patient = group2$Patient
 group2_Y = ifelse(group2$SepsisLabel==1, "Y", "N")
 group2 = subset(group2, select=-c(X, EtCO2, SepsisLabel, Patient, TroponinI))
+#replacing NaN with mean value
 group2 = na.aggregate(group2) 
 group2 = data.frame(group2, group2_Y)
 
 group3_patient = group3$Patient
 group3_Y = ifelse(group3$SepsisLabel==1, "Y", "N")
 group3 = subset(group3, select=-c(X, EtCO2, SepsisLabel, Patient, TroponinI))
+#replacing NaN with mean value
 group3 = na.aggregate(group3) 
 group3 = data.frame(group3, group3_Y)
 
-
+#remove high correlating variables
 predCorr <- cor(train[,-40])
 highCorr <- findCorrelation(predCorr, .90)
 train <- train[-highCorr]
 
+#scaling and centering
 prePro_range <- preProcess(train, method = "range")
 train <- predict(prePro_range, newdata = train)
 test <- predict(prePro_range, newdata = test)
 group1 <- predict(prePro_range, newdata = group1)
 group2 <- predict(prePro_range, newdata = group2)
 group3 <- predict(prePro_range, newdata = group3)
-
-#apply(train, 2, FUN = function(x) {c("min"=min(x), "max"=max(x))})
 
 
 ctrl <- trainControl(method = "LGOCV",
@@ -95,7 +96,7 @@ ctrl <- trainControl(method = "LGOCV",
 
 
 ################################################################################
-## Bagged Trees
+## model training
 ################################################################################
 
 set.seed(123)
@@ -135,16 +136,17 @@ plot(c50Imp, main = "Variable Importance with C5.0")
 
 
 #########################
-## This is real results
+## Real Predictions
 #########################
 
 predicted = predict(c50Fit, test)
 confusionMatrix(reference = test$test_Y, data = predicted, mode = "everything", positive = "Y")
 
+#group 1
 predicted1 = predict(c50Fit, group1)
 confusionMatrix(reference = group1$group1_Y, data = predicted1, mode = "everything", positive = "Y")
 
-
+#group 2
 predicted2 = predict(c50Fit, group2)
 confusionMatrix(reference = group2$group2_Y, data = predicted2, mode = "everything", positive = "Y")
 
@@ -153,27 +155,32 @@ form = data.frame(predicted2, group2.patients, group2.time, group2_Y)
 flag1 = (form$predicted2=='Y' & form$group2_Y == "Y")
 correct = form[flag1,]
 
-
+#patients - 6hrs early correct prediction
 t6 = correct[correct$group2.time==-15,]
 
+#patients - 5hrs early correct prediction
 t5 = correct[correct$group2.time==-14,]
 t5 = t5[!(t5$group2.patients %in% t6$group2.patients),]
 
+#patients - 4hrs early correct prediction
 t4 = correct[correct$group2.time==-13,]
 t4 = t4[!(t4$group2.patients %in% t6$group2.patients),]
 t4 = t4[!(t4$group2.patients %in% t5$group2.patients),]
 
+#patients - 3hrs early correct prediction
 t3 = correct[correct$group2.time==-12,]
 t3 = t3[!(t3$group2.patients %in% t6$group2.patients),]
 t3 = t3[!(t3$group2.patients %in% t5$group2.patients),]
 t3 = t3[!(t3$group2.patients %in% t4$group2.patients),]
 
+#patients - 2hrs early correct prediction
 t2 = correct[correct$group2.time==-11,]
 t2 = t2[!(t2$group2.patients %in% t6$group2.patients),]
 t2 = t2[!(t2$group2.patients %in% t5$group2.patients),]
 t2 = t2[!(t2$group2.patients %in% t4$group2.patients),]
 t2 = t2[!(t2$group2.patients %in% t3$group2.patients),]
 
+#patients - 1hr early correct prediction
 t1 = correct[correct$group2.time==-10,]
 t1 = t1[!(t1$group2.patients %in% t6$group2.patients),]
 t1 = t1[!(t1$group2.patients %in% t5$group2.patients),]
@@ -185,6 +192,7 @@ flag2 = form$predicted2=='N' & form$group2_Y == "Y"
 
 wrong = form[flag2,]
 
+#patients - incorrect prediction
 incorrect <- wrong %>% group_by(group2.patients) %>% summarize(count = n())
 
 predicted3 = predict(c50Fit, group3)
