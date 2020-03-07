@@ -5,9 +5,9 @@ library(doMC)
 numCores <- detectCores()
 registerDoMC(cores = numCores-2)
 
-#last10 = Clinical Confirmation Group
-#last11 = Early Prediction Group
-#last17 = Extraneous Group
+#last10 = Clinical Confirmation Group (records -9 to 0)
+#last11 = Early Prediction Group (records -15 to -10)
+#last17 = Extraneous Group (records -16 and earlier)
 setB_last10 = read.csv("setB_last10.csv", header = TRUE)
 setB_last11 = read.csv("setB_last11.csv", header = TRUE)
 setB_last17 = read.csv("setB_last17.csv", header = TRUE)
@@ -34,9 +34,9 @@ table(train$SepsisLabel)
 #testing
 test = setA
 
-#group1 = Clinical Confirmation Group
-#group2 = Early Prediction Group
-#group3 = Extraneous Group
+#last10 = Clinical Confirmation Group (records -9 to 0)
+#last11 = Early Prediction Group (records -15 to -10)
+#last17 = Extraneous Group (records -16 and earlier)
 group1 = test[test$time > -10, ]
 group2 = test[test$time < -9 & test$time > -16, ]
 group3 = test[test$time < -15, ]
